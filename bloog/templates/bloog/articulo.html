@@ -1,5 +1,55 @@
 {% extends 'bloog/layout.html' %}
 {% block content %}
+{% block scripts %}
+<script>
+    // Función para manejar los votos de los comentarios
+    function votar(comentarioId, esLike) {
+        console.log("La función votar ha sido llamada", comentarioId, esLike);
+        const url = `/votar/${comentarioId}/${esLike ? 'like' : 'dislike'}/`;
+        const csrftoken = getCookie('csrftoken'); // Función para obtener el token CSRF de las cookies
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Actualiza el conteo de likes/dislikes en el DOM
+                if (esLike) {
+                    document.getElementById(`like-count-${comentarioId}`).textContent = data.likes;
+                } else {
+                    document.getElementById(`dislike-count-${comentarioId}`).textContent = data.dislikes;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Función para obtener el valor de una cookie por su nombre
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // ¿Esta cookie comienza con el nombre que buscamos?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}
 <section class="banner-section">
     <div class="banner-section__wrapper section__wrapper">
         <div class="banner-section__content">
@@ -168,8 +218,8 @@
                         <div>
                             <div class="blog-comment__content">
                                 <p class="blog-comment__user">
-                                    <span class="blog-comment__username">anonimo</span>
-                                    <span>@anonimo</span>
+                                    <span class="blog-comment__username">{{articulo.autor}}</span>
+                                    <span>@{{articulo.autor.first_name}}{{articulo.autor.last_name}}</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="1.25em" height="1.25em"
                                         viewBox="0 0 26 16" class="svg-icon" fill="currentColor">
                                         <g clip-path="url(#clip0_3339_1883)">
@@ -187,7 +237,7 @@
                                             </clipPath>
                                         </defs>
                                     </svg>
-                                    <span class="blog-comment__time">hace 3 años</span>
+                                    <span class="blog-comment__time">desde {{articulo.fecha_registro}}</span>
                                 </p>
                                 <p class="blog-comment__description">
                                     {{comentario.texto}}
@@ -334,10 +384,5 @@
     </div>
 </section>
 
-
-
-{% block scripts %}
-
-{% endblock %}
 
 {% endblock %}

@@ -46,10 +46,9 @@ def comentar(request, articulo_id):
 def voto(request, comentario_id, es_like):
     if request.method == "POST":
         comentario = get_object_or_404(Comentario, pk=comentario_id)
-        # Opción 1: Actualizar contadores directamente
-        if es_like:
+        if es_like == "like":
             comentario.likes += 1
-        else:
+        elif es_like == "dislike":
             comentario.dislikes += 1
         comentario.save()
 
