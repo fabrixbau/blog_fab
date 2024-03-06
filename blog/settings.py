@@ -129,3 +129,9 @@ import os
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
+
+# Redireccionar después de login
+LOGIN_REDIRECT_URL = ''
+
+# Redireccionar después de logout
+LOGOUT_REDIRECT_URL = ''  # Por ejemplo, la página de inicio de tu sitio
